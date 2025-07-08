@@ -7,14 +7,14 @@
 // grid operations
 Grid2D* grid_create(int nx, int ny, double dx, double dy, double alpha)
 {
-    Grid2D* grid = (Grid2D*)malloc(sizeof(Grid2D));
+    Grid2D* grid = (Grid2D*) malloc(sizeof(Grid2D));
 
     grid->nx = nx;
     grid->ny = ny;
     grid->dx = dx;
     grid->dy = dy;
     grid->alpha = alpha;
-    grid->data = (double*)calloc(nx * ny, sizeof(double));
+    grid->data = (double*) calloc(nx * ny, sizeof(double));
 
     return grid;
 }
@@ -66,7 +66,7 @@ SparseMatrix* sparse_matrix_create(int rows, int cols)
 
     matrix->rows = rows;
     matrix->cols = cols;
-    matrix->row_ptr = (int*)calloc(rows + 1, sizeof(int));
+    matrix->row_ptr = (int*) calloc(rows + 1, sizeof(int));
     matrix->col_idx = NULL;
     matrix->vals = NULL;
     matrix->nnz = 0;
@@ -163,7 +163,7 @@ void explicit_step(Grid2D* grid, double dt)
     double dy2 = grid->dy * grid->dy;
     double alpha = grid->alpha;
     
-    double* new_data = (double*)malloc(nx * ny * sizeof(double));
+    double* new_data = (double*) malloc(nx * ny * sizeof(double));
     memcpy(new_data, grid->data, nx * ny * sizeof(double));
     
     // update interior points
