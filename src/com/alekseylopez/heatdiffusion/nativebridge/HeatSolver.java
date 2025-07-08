@@ -108,12 +108,6 @@ public class HeatSolver
         {
             return alpha;
         }
-        
-        @Override
-        protected void finalize() throws Throwable
-        {
-            destroy();
-        }
     }
     
     // simulation parameters class
