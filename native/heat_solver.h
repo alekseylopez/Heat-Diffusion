@@ -8,7 +8,7 @@ extern "C"
 {
 #endif
 
-// Structure to represent a 2D grid
+// structure to represent a 2D grid
 typedef struct
 {
     int nx, ny;
@@ -16,7 +16,7 @@ typedef struct
     double* data;
 } Grid2D;
 
-// Structure for sparse matrix (CSR format)
+// structure for sparse matrix (CSR format)
 typedef struct
 {
     int rows, cols;

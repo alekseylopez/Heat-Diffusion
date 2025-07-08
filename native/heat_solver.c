@@ -209,7 +209,7 @@ void implicit_step(Grid2D* grid, double dt, double theta)
     memcpy(x, grid->data, n * sizeof(double));
     memcpy(b, grid->data, n * sizeof(double));
     
-    // simple iterative solver for demonstration
+    // simple iterative solver as a placeholder
     for(int iter = 0; iter < 10; iter++)
     {
         for(int i = 1; i < nx - 1; i++)
