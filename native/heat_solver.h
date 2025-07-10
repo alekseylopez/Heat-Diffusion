@@ -49,12 +49,15 @@ double grid_get_value(Grid2D* grid, int i, int j);
 void grid_apply_boundary_conditions(Grid2D* grid, double time);
 
 // sparse matrix operations
+SparseMatrix* sparse_matrix_create(int rows, int cols);
+void sparse_matrix_destroy(SparseMatrix* matrix);
 void sparse_matrix_multiply(const SparseMatrix* A, const double* x, double* y);
 
 // sparse matrix builder operations
 SparseMatrixBuilder* sparse_matrix_builder_create(int rows, int cols);
 void sparse_matrix_builder_destroy(SparseMatrixBuilder* builder);
 void sparse_matrix_builder_add_entry(SparseMatrixBuilder* builder, int row, int col, double value);
+int compare_triplets(const void* a, const void* b);
 SparseMatrix* sparse_matrix_builder_finalize(SparseMatrixBuilder* builder);
 
 // conjugate gradient solver

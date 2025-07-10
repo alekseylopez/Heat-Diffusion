@@ -59,6 +59,31 @@ void grid_apply_boundary_conditions(Grid2D* grid, double time)
     }
 }
 
+SparseMatrix* sparse_matrix_create(int rows, int cols)
+{
+    SparseMatrix* matrix = (SparseMatrix*) malloc(sizeof(SparseMatrix));
+
+    matrix->rows = rows;
+    matrix->cols = cols;
+    matrix->row_ptr = (int*) calloc(rows + 1, sizeof(int));
+    matrix->col_idx = NULL;
+    matrix->vals = NULL;
+    matrix->nnz = 0;
+
+    return matrix;
+}
+
+void sparse_matrix_destroy(SparseMatrix* matrix)
+{
+    if(matrix)
+    {
+        free(matrix->row_ptr);
+        free(matrix->col_idx);
+        free(matrix->vals);
+        free(matrix);
+    }
+}
+
 void sparse_matrix_multiply(const SparseMatrix* A, const double* x, double* y)
 {
     for(int i = 0; i < A->rows; i++)
@@ -68,6 +93,102 @@ void sparse_matrix_multiply(const SparseMatrix* A, const double* x, double* y)
         for(int idx = A->row_ptr[i]; idx < A->row_ptr[i + 1]; idx++)
             y[i] += A->vals[idx] * x[A->col_idx[idx]];
     }
+}
+
+SparseMatrixBuilder* sparse_matrix_builder_create(int rows, int cols)
+{
+    SparseMatrixBuilder* builder = (SparseMatrixBuilder*) malloc(sizeof(SparseMatrixBuilder));
+    
+    builder->rows = rows;
+    builder->cols = cols;
+    builder->capacity = 1000; // TODO: replace magic number (placeholder reasonable size)
+    builder->count = 0;
+    builder->triplets = (Triplet*) malloc(builder->capacity * sizeof(Triplet));
+    
+    return builder;
+}
+
+void sparse_matrix_builder_destroy(SparseMatrixBuilder* builder)
+{
+    if(builder)
+    {
+        free(builder->triplets);
+        free(builder);
+    }
+}
+
+void sparse_matrix_builder_add_entry(SparseMatrixBuilder* builder, int row, int col, double value)
+{
+    // skip zero entries
+    if(fabs(value) < 1e-15)
+        return;
+    
+    // resize if needed
+    if(builder->count >= builder->capacity)
+    {
+        builder->capacity *= 2;
+        builder->triplets = (Triplet*) realloc(builder->triplets, builder->capacity * sizeof(Triplet));
+    }
+    
+    // add entry
+    builder->triplets[builder->count].row = row;
+    builder->triplets[builder->count].col = col;
+    builder->triplets[builder->count].val = value;
+    builder->count++;
+}
+
+int compare_triplets(const void* a, const void* b)
+{
+    const Triplet* ta = (const Triplet*)a;
+    const Triplet* tb = (const Triplet*)b;
+    
+    if (ta->row != tb->row) return ta->row - tb->row;
+    return ta->col - tb->col;
+}
+
+SparseMatrix* sparse_matrix_builder_finalize(SparseMatrixBuilder* builder)
+{
+    if(builder->count == 0)
+    {
+        // empty matrix
+        SparseMatrix* matrix = sparse_matrix_create(builder->rows, builder->cols);
+        return matrix;
+    }
+    
+    // sort by row first then column
+    qsort(builder->triplets, builder->count, sizeof(Triplet), compare_triplets);
+    
+    // create final matrix
+    SparseMatrix* matrix = sparse_matrix_create(builder->rows, builder->cols);
+    matrix->nnz = builder->count;
+    matrix->col_idx = (int*) malloc(matrix->nnz * sizeof(int));
+    matrix->vals = (double*) malloc(matrix->nnz * sizeof(double));
+    
+    // build CSR format
+    int current_row = 0;
+    matrix->row_ptr[0] = 0;
+    
+    for(int i = 0; i < matrix->nnz; i++)
+    {
+        matrix->col_idx[i] = builder->triplets[i].col;
+        matrix->vals[i] = builder->triplets[i].val;
+        
+        // update row_ptr when we hit a new row
+        while(current_row < builder->triplets[i].row)
+        {
+            current_row++;
+            matrix->row_ptr[current_row] = i;
+        }
+    }
+    
+    // fill remaining row_ptr entries
+    while(current_row < matrix->rows)
+    {
+        current_row++;
+        matrix->row_ptr[current_row] = matrix->nnz;
+    }
+    
+    return matrix;
 }
 
 // conjugate gradient solver
