@@ -59,32 +59,6 @@ void grid_apply_boundary_conditions(Grid2D* grid, double time)
     }
 }
 
-// sparse matrix operations
-SparseMatrix* sparse_matrix_create(int rows, int cols)
-{
-    SparseMatrix* matrix = (SparseMatrix*) malloc(sizeof(SparseMatrix));
-
-    matrix->rows = rows;
-    matrix->cols = cols;
-    matrix->row_ptr = (int*) calloc(rows + 1, sizeof(int));
-    matrix->col_idx = NULL;
-    matrix->vals = NULL;
-    matrix->nnz = 0;
-
-    return matrix;
-}
-
-void sparse_matrix_destroy(SparseMatrix* matrix)
-{
-    if(matrix)
-    {
-        free(matrix->row_ptr);
-        free(matrix->col_idx);
-        free(matrix->vals);
-        free(matrix);
-    }
-}
-
 void sparse_matrix_multiply(const SparseMatrix* A, const double* x, double* y)
 {
     for(int i = 0; i < A->rows; i++)

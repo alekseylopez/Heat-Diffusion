@@ -49,10 +49,6 @@ double grid_get_value(Grid2D* grid, int i, int j);
 void grid_apply_boundary_conditions(Grid2D* grid, double time);
 
 // sparse matrix operations
-SparseMatrix* sparse_matrix_create(int rows, int cols);
-void sparse_matrix_destroy(SparseMatrix* matrix);
-void sparse_matrix_add_entry(SparseMatrix* matrix, int row, int col, double value);
-void sparse_matrix_finalize(SparseMatrix* matrix);
 void sparse_matrix_multiply(const SparseMatrix* A, const double* x, double* y);
 
 // sparse matrix builder operations
