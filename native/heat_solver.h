@@ -26,6 +26,21 @@ typedef struct
     int nnz;  // number of non-zeros
 } SparseMatrix;
 
+typedef struct
+{
+    int row, col;
+    double val;
+} Triplet;
+
+// structure for more efficient building of a sparse matrix
+typedef struct
+{
+    Triplet* triplets;
+    int capacity;
+    int count;
+    int rows, cols;
+} SparseMatrixBuilder;
+
 // grid operations
 Grid2D* grid_create(int nx, int ny, double dx, double dy, double alpha);
 void grid_destroy(Grid2D* grid);
@@ -39,6 +54,12 @@ void sparse_matrix_destroy(SparseMatrix* matrix);
 void sparse_matrix_add_entry(SparseMatrix* matrix, int row, int col, double value);
 void sparse_matrix_finalize(SparseMatrix* matrix);
 void sparse_matrix_multiply(const SparseMatrix* A, const double* x, double* y);
+
+// sparse matrix builder operations
+SparseMatrixBuilder* sparse_matrix_builder_create(int rows, int cols);
+void sparse_matrix_builder_destroy(SparseMatrixBuilder* builder);
+void sparse_matrix_builder_add_entry(SparseMatrixBuilder* builder, int row, int col, double value);
+SparseMatrix* sparse_matrix_builder_finalize(SparseMatrixBuilder* builder);
 
 // conjugate gradient solver
 int conjugate_gradient_solve(const SparseMatrix* A, const double* b, double* x, double tolerance, int max_iterations);
