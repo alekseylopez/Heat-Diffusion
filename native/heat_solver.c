@@ -139,10 +139,12 @@ void sparse_matrix_builder_add_entry(SparseMatrixBuilder* builder, int row, int 
 
 int compare_triplets(const void* a, const void* b)
 {
-    const Triplet* ta = (const Triplet*)a;
-    const Triplet* tb = (const Triplet*)b;
+    const Triplet* ta = (const Triplet*) a;
+    const Triplet* tb = (const Triplet*) b;
     
-    if (ta->row != tb->row) return ta->row - tb->row;
+    if(ta->row != tb->row)
+        return ta->row - tb->row;
+    
     return ta->col - tb->col;
 }
 
@@ -274,7 +276,7 @@ int conjugate_gradient_solve(const SparseMatrix* A, const double* b, double* x, 
 {
     int n = A->rows;
     double* r = (double*) malloc(n * sizeof(double));
-    double* p = (double* )malloc(n * sizeof(double));
+    double* p = (double*) malloc(n * sizeof(double));
     double* Ap = (double*) malloc(n * sizeof(double));
     
     // r = b - A*x
@@ -394,7 +396,7 @@ JNIEXPORT jlong JNICALL Java_com_alekseylopez_heatdiffusion_nativebridge_HeatSol
   (JNIEnv *env, jobject obj, jint nx, jint ny, jdouble dx, jdouble dy, jdouble alpha)
 {
     Grid2D* grid = grid_create(nx, ny, dx, dy, alpha);
-    return (jlong)grid;
+    return (jlong) grid;
 }
 
 JNIEXPORT void JNICALL Java_com_alekseylopez_heatdiffusion_nativebridge_HeatSolver_destroyGrid
