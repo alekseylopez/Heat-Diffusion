@@ -60,6 +60,10 @@ void sparse_matrix_builder_add_entry(SparseMatrixBuilder* builder, int row, int 
 int compare_triplets(const void* a, const void* b);
 SparseMatrix* sparse_matrix_builder_finalize(SparseMatrixBuilder* builder);
 
+// helper functions for implicit stepping
+SparseMatrix* build_implicit_matrix(Grid2D* grid, double dt, double theta);
+void assemble_rhs_vector(Grid2D* grid, double dt, double theta, double* rhs);
+
 // conjugate gradient solver
 int conjugate_gradient_solve(const SparseMatrix* A, const double* b, double* x, double tolerance, int max_iterations);
 

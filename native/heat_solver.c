@@ -195,9 +195,9 @@ SparseMatrix* sparse_matrix_builder_finalize(SparseMatrixBuilder* builder)
 int conjugate_gradient_solve(const SparseMatrix* A, const double* b, double* x, double tolerance, int max_iterations)
 {
     int n = A->rows;
-    double* r = (double*)malloc(n * sizeof(double));
-    double* p = (double*)malloc(n * sizeof(double));
-    double* Ap = (double*)malloc(n * sizeof(double));
+    double* r = (double*) malloc(n * sizeof(double));
+    double* p = (double* )malloc(n * sizeof(double));
+    double* Ap = (double*) malloc(n * sizeof(double));
     
     // r = b - A*x
     sparse_matrix_multiply(A, x, r);
