@@ -7,7 +7,7 @@ public class HeatSolver
         try
         {
             System.loadLibrary("heat_solver");
-        } catch (UnsatisfiedLinkError e)
+        } catch(UnsatisfiedLinkError e)
         {
             System.err.println("Failed to load native library: " + e.getMessage());
             System.err.println("Make sure heat_solver.dll (Windows) or libheat_solver.so (Linux/Mac) is in java.library.path");
