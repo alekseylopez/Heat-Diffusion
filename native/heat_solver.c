@@ -370,42 +370,17 @@ void implicit_step(Grid2D* grid, double dt, double theta)
     int ny = grid->ny;
     int n = nx * ny;
     
-    double dx2 = grid->dx * grid->dx;
-    double dy2 = grid->dy * grid->dy;
-    double alpha = grid->alpha;
+    SparseMatrix* A = build_implicit_matrix(grid, dt, theta);
     
-    // TODO: for now, just do a simple backward Euler step - full implicit later
     double* b = (double*) malloc(n * sizeof(double));
     double* x = (double*) malloc(n * sizeof(double));
+
+    assemble_rhs_vector(grid, dt, theta, b);
     
     // copy current solution as initial guess
     memcpy(x, grid->data, n * sizeof(double));
-    memcpy(b, grid->data, n * sizeof(double));
-    
-    // simple iterative solver as a placeholder
-    for(int iter = 0; iter < 10; iter++)
-    {
-        for(int i = 1; i < nx - 1; i++)
-        {
-            for(int j = 1; j < ny - 1; j++)
-            {
-                int idx = i + j * nx;
-                double coeff = 1.0 + dt * alpha * theta * (2.0 / dx2 + 2.0 / dy2);
-                
-                double rhs = b[idx];
-                if(i > 0)
-                    rhs += dt * alpha * theta * x[idx - 1] / dx2;
-                if(i < nx - 1)
-                    rhs += dt * alpha * theta * x[idx + 1] / dx2;
-                if(j > 0)
-                    rhs += dt * alpha * theta * x[idx - nx] / dy2;
-                if(j < ny - 1)
-                    rhs += dt * alpha * theta * x[idx + nx] / dy2;
-                
-                x[idx] = rhs / coeff;
-            }
-        }
-    }
+
+    conjugate_gradient_solve(A, b, x, 1e-10, 1000);
     
     memcpy(grid->data, x, n * sizeof(double));
     grid_apply_boundary_conditions(grid, 0.0);
