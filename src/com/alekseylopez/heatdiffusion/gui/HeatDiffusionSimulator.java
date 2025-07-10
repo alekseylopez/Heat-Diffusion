@@ -19,6 +19,7 @@ public class HeatDiffusionSimulator extends JFrame
     private JButton startButton, pauseButton, resetButton, stepButton;
     private JSlider dtSlider, alphaSlider, speedSlider;
     private JCheckBox implicitCheckbox;
+    private JCheckBox crankCheckBox;
     private JLabel statusLabel, timeLabel;
     private JTextField nxField, nyField, maxStepsField;
     
@@ -114,27 +115,31 @@ public class HeatDiffusionSimulator extends JFrame
         gbc.weightx = 1.0;
         
         // grid size
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         paramPanel.add(new JLabel("Grid NX:"), gbc);
         gbc.gridx = 1;
         nxField = new JTextField(String.valueOf(params.nx), 6);
         paramPanel.add(nxField, gbc);
         
-        gbc.gridx = 0; gbc.gridy = 1;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         paramPanel.add(new JLabel("Grid NY:"), gbc);
         gbc.gridx = 1;
         nyField = new JTextField(String.valueOf(params.ny), 6);
         paramPanel.add(nyField, gbc);
         
         // max steps
-        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 2;
         paramPanel.add(new JLabel("Max Steps:"), gbc);
         gbc.gridx = 1;
         maxStepsField = new JTextField(String.valueOf(params.maxSteps), 6);
         paramPanel.add(maxStepsField, gbc);
         
         // time step slider
-        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridx = 0;
+        gbc.gridy = 3;
         paramPanel.add(new JLabel("Time Step:"), gbc);
         gbc.gridx = 1;
         dtSlider = new JSlider(1, 100, (int) (params.dt * 1000));
@@ -146,7 +151,8 @@ public class HeatDiffusionSimulator extends JFrame
         paramPanel.add(dtSlider, gbc);
         
         // alpha slider
-        gbc.gridx = 0; gbc.gridy = 4;
+        gbc.gridx = 0;
+        gbc.gridy = 4;
         paramPanel.add(new JLabel("Alpha:"), gbc);
         gbc.gridx = 1;
         alphaSlider = new JSlider(1, 100, (int) (params.alpha * 100));
@@ -158,7 +164,8 @@ public class HeatDiffusionSimulator extends JFrame
         paramPanel.add(alphaSlider, gbc);
         
         // speed slider
-        gbc.gridx = 0; gbc.gridy = 5;
+        gbc.gridx = 0;
+        gbc.gridy = 5;
         paramPanel.add(new JLabel("Speed:"), gbc);
         gbc.gridx = 1;
         speedSlider = new JSlider(1, 10, 5);
@@ -170,11 +177,20 @@ public class HeatDiffusionSimulator extends JFrame
         paramPanel.add(speedSlider, gbc);
         
         // implicit checkbox
-        gbc.gridx = 0; gbc.gridy = 6;
+        gbc.gridx = 0;
+        gbc.gridy = 6;
         gbc.gridwidth = 2;
-        implicitCheckbox = new JCheckBox("Use Implicit Method", params.useImplicit);
+        implicitCheckbox = new JCheckBox("Use implicit method", params.useImplicit);
         implicitCheckbox.addActionListener(e -> params.useImplicit = implicitCheckbox.isSelected());
         paramPanel.add(implicitCheckbox, gbc);
+        
+        // Crank-Nicolson checkbox
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        gbc.gridwidth = 2;
+        crankCheckBox = new JCheckBox("Use Crank-Nicolson (if implicit)", false);
+        crankCheckBox.addActionListener(e -> params.theta = crankCheckBox.isSelected() ? 0.5 : 1.0);
+        paramPanel.add(crankCheckBox, gbc);
         
         controlPanel.add(paramPanel);
         
