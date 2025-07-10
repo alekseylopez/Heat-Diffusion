@@ -187,7 +187,6 @@ public class HeatDiffusionSimulator extends JFrame
         // Crank-Nicolson checkbox
         gbc.gridx = 0;
         gbc.gridy = 7;
-        gbc.gridwidth = 2;
         crankCheckBox = new JCheckBox("Use Crank-Nicolson (if implicit)", false);
         crankCheckBox.addActionListener(e -> params.theta = crankCheckBox.isSelected() ? 0.5 : 1.0);
         paramPanel.add(crankCheckBox, gbc);
