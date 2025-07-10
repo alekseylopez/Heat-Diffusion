@@ -191,6 +191,84 @@ SparseMatrix* sparse_matrix_builder_finalize(SparseMatrixBuilder* builder)
     return matrix;
 }
 
+SparseMatrix* build_implicit_matrix(Grid2D* grid, double dt, double theta)
+{
+    int nx = grid->nx;
+    int ny = grid->ny;
+    int n = nx * ny;
+    
+    SparseMatrixBuilder* builder = sparse_matrix_builder_create(n, n);
+    
+    double dx2 = grid->dx * grid->dx;
+    double dy2 = grid->dy * grid->dy;
+    double alpha = grid->alpha;
+    
+    for(int i = 0; i < nx; i++)
+    {
+        for(int j = 0; j < ny; j++)
+        {
+            int idx = i + j * nx;
+            
+            if(i == 0 || i == nx - 1 || j == 0 || j == ny - 1)
+            {
+                // boundary: u = 0
+                sparse_matrix_builder_add_entry(builder, idx, idx, 1.0);
+            } else
+            {
+                // interior: (I - θ*dt*α*L)
+                double diag = 1.0 + theta * dt * alpha * (2.0 / dx2 + 2.0 / dy2);
+                double off_x = -theta * dt * alpha / dx2;
+                double off_y = -theta * dt * alpha / dy2;
+                
+                sparse_matrix_builder_add_entry(builder, idx, idx, diag);
+                sparse_matrix_builder_add_entry(builder, idx, idx - 1, off_x); // left
+                sparse_matrix_builder_add_entry(builder, idx, idx + 1, off_x); // right
+                sparse_matrix_builder_add_entry(builder, idx, idx - nx, off_y); // down
+                sparse_matrix_builder_add_entry(builder, idx, idx + nx, off_y); // up
+            }
+        }
+    }
+    
+    SparseMatrix* matrix = sparse_matrix_builder_finalize(builder);
+    sparse_matrix_builder_destroy(builder);
+    
+    return matrix;
+}
+
+void assemble_rhs_vector(Grid2D* grid, double dt, double theta, double* rhs)
+{
+    int nx = grid->nx;
+    int ny = grid->ny;
+    double dx2 = grid->dx * grid->dx;
+    double dy2 = grid->dy * grid->dy;
+    double alpha = grid->alpha;
+    
+    for(int i = 0; i < nx; i++)
+    {
+        for(int j = 0; j < ny; j++)
+        {
+            int idx = i + j * nx;
+            
+            if(i == 0 || i == nx - 1 || j == 0 || j == ny - 1)
+            {
+                rhs[idx] = 0.0; // boundary condition
+            } else
+            {
+                double u_ij = grid_get_value(grid, i, j);
+                double u_ip1 = grid_get_value(grid, i + 1, j);
+                double u_im1 = grid_get_value(grid, i - 1, j);
+                double u_jp1 = grid_get_value(grid, i, j + 1);
+                double u_jm1 = grid_get_value(grid, i, j - 1);
+                
+                // discrete laplacian
+                double laplacian = (u_ip1 - 2.0 * u_ij + u_im1) / dx2 + (u_jp1 - 2.0 * u_ij + u_jm1) / dy2;
+                
+                rhs[idx] = u_ij + (1.0 - theta) * dt * alpha * laplacian;
+            }
+        }
+    }
+}
+
 // conjugate gradient solver
 int conjugate_gradient_solve(const SparseMatrix* A, const double* b, double* x, double tolerance, int max_iterations)
 {
